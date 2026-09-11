@@ -2,7 +2,7 @@
     <div class="page">
         カタカムナ
         <div class="svg-container">
-            <svg width="400" height="400" viewBox="-200 -200 400 400" style="border: 1px solid gray;">
+            <svg width="600" height="600" viewBox="-300 -300 600 600" style="border: 1px solid gray;">
                 <use :href="svgpath + '#kcn'" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)" :width="size * 3"
                     :height="size * 3" class="icon-style" />
                 <template v-for="p in points">
