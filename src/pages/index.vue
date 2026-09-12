@@ -2,7 +2,7 @@
     <div class="page">
         カタカムナ
         <div class="svg-container">
-            <svg width="600" height="600" viewBox="-300 -300 600 600" style="border: 1px solid gray;">
+            <svg ref="svgRef" width="600" height="600" viewBox="-300 -300 600 600" style="border: 1px solid gray;">
                 <use :href="svgpath + '#kcn'" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)" :width="size * 3"
                     :height="size * 3" class="icon-style" />
                 <template v-for="p in points">
@@ -23,7 +23,7 @@
 
             <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
                 <v-col cols="3">
-            サイズ
+                    サイズ
                 </v-col>
                 <v-col cols="2">
                     {{ size.toFixed(0) }}
@@ -82,13 +82,15 @@
                 </v-col>
             </v-row>
             <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
-                <v-col cols="5">
+                <v-col cols="3">
                 </v-col>
                 <v-col>
                     <button @click="on_click">描画</button>
                 </v-col>
+                <v-col>
+                    <button @click="on_download">ダウンロード</button>
+                </v-col>
             </v-row>
-
         </div>
     </v-navigation-drawer>
 </template>
@@ -109,6 +111,7 @@ const radius_init = ref(40);
 const radiusp_step = ref(0.1);
 const radiuspp_step = ref(0.01);
 const display_kana = ref(true);
+const svgRef = ref<SVGGraphicsElement | null>(null)
 
 onMounted(() => {
     points.value = getpoints();
@@ -154,6 +157,133 @@ const getpoints = () => {
     }
     return list;
 };
+
+const on_download = async () => {
+    if (!svgRef.value)
+        return
+    const clonedSvg = svgRef.value.cloneNode(true) as SVGGraphicsElement;
+    const useElements = clonedSvg.querySelectorAll('use')
+    if (useElements.length === 0)
+        return
+    try {
+        const firstHref = useElements[0].getAttribute('href') || '';
+        const svgUrl = firstHref.split('#')[0];
+        if (!svgUrl) {
+            console.error('SVGファイルのパスが取得できませんでした。');
+            return;
+        }
+        const response = await fetch(svgUrl);
+        const svgText = await response.text();
+        const parser = new DOMParser();
+        const externalSvgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+        const style = externalSvgDoc.getElementsByTagName("style")[0];
+        if (style) clonedSvg.prepend(style);
+
+        useElements.forEach((useEl) => {
+            const href = useEl.getAttribute('href') || '';
+            const id = href.split('#')[1];
+            if (!id)
+                return;
+            const sourceElement = externalSvgDoc.getElementById(id);
+            if (sourceElement) {
+                const importedContent = sourceElement.cloneNode(true) as Element;
+                let finalContent: Element = importedContent;
+                // 元のシンボルの本来のサイズ（viewBox）を取得する（デフォルトは100と仮定）
+                let originalWidth = 100;
+                let originalHeight = 100;
+                const viewBox = sourceElement.getAttribute('viewBox');
+                if (viewBox) {
+                    const parts = viewBox.split(' ');
+                    if (parts.length === 4) {
+                        originalWidth = parseFloat(parts[2]);
+                        originalHeight = parseFloat(parts[3]);
+                    }
+                } else {
+                    // viewBoxがない場合は width/height 属性を見てみる
+                    const w = sourceElement.getAttribute('width');
+                    const h = sourceElement.getAttribute('height');
+                    if (w) originalWidth = parseFloat(w);
+                    if (h) originalHeight = parseFloat(h);
+                }
+                // シンボルをgタグへ変換
+                if (importedContent.tagName.toLowerCase() === 'symbol') {
+                    const g = document.createElementNS('http://w3.org', 'g');
+                    while (importedContent.firstChild) {
+                        // シンボルの内容をgタグへ
+                        g.appendChild(importedContent.firstChild);
+                    }
+                    finalContent = g;
+                }
+
+                // ラッパーとなる <g> タグを作成
+                const group = document.createElementNS('http://w3.org', 'g');
+
+                // <use> が持っていた位置 (x, y) と サイズ (width, height) を取得
+                const x = parseFloat(useEl.getAttribute('x') || '0');
+                const y = parseFloat(useEl.getAttribute('y') || '0');
+                const width = parseFloat(useEl.getAttribute('width') || '0');
+                const height = parseFloat(useEl.getAttribute('height') || '0');
+
+                // 本来のサイズからどれくらい拡大縮小すべきか倍率（scale）を計算
+                const scaleX = width > 0 ? width / originalWidth : 1;
+                const scaleY = height > 0 ? height / originalHeight : 1;
+
+                // 位置の移動（translate）と拡大縮小（scale）をまとめて適用
+                // scaleだけだと位置まで拡大されてしまうので、先に移動させてから縮尺を変えます
+                group.setAttribute('transform', `translate(${x}, ${y}) scale(${scaleX}, ${scaleY})`);
+
+                // class
+                if (useEl.hasAttribute('class')) {
+                    group.setAttribute('class', useEl.getAttribute('class') ?? '');
+                }
+
+                // インラインスタイル (style="..." )
+                if (useEl.hasAttribute('style')) {
+                    group.setAttribute('style', useEl.getAttribute('style') ?? '');
+                }
+                // VueのScoped CSS用属性（data-v-xxxxxx）
+                /*
+                Array.from(useEl.attributes).forEach(attr => {
+                    if (attr.name.startsWith('data-v-')) {
+                        group.setAttribute(attr.name, attr.value);
+                        // 中身の要素（pathなど）にも念のため波及させてスタイルを当てる
+                        finalContent.setAttribute(attr.name, attr.value);
+                        Array.from(finalContent.querySelectorAll('*')).forEach(child => {
+                            child.setAttribute(attr.name, attr.value);
+                        });
+                    }
+                });
+                */
+
+                group.appendChild(finalContent);
+
+                if (useEl.parentNode) {
+                    useEl.parentNode.replaceChild(group, useEl);
+                }
+            }
+        });
+    } catch (error) {
+        console.error('外部SVGファイルの取得・展開に失敗しました:', error);
+    }
+
+    // XML文字列に変換してダウンロード
+    const serializer = new XMLSerializer()
+    let svgString = serializer.serializeToString(clonedSvg)
+
+    if (!svgString.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+        svgString = svgString.replace(/^<svg/, '<svg xmlns="http://w3.org"');
+    }
+
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+     link.download = `katakamuna.svg`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+}
 </script>
 <style scoped>
 div.page {
