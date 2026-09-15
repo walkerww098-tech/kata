@@ -1,28 +1,44 @@
 <template>
-    <div class="page">
-        <div>
-            カタカムナ 横書き
-        </div>
-        <div class="hor-container">
-            <template v-for="i in imgs">
-                <img :src="i" :height="size" />
-            </template>
-        </div>
-    </div>
-    <v-navigation-drawer color="grey-lighten-1" location="right" width="250" permanent>
-        テキスト
-        <v-combobox :items="selection" v-model="line" @update:model-value="onclick" />
-         <br />
-        文字サイズ : {{ size.toFixed(0) }}
-        <button @click="onclick">描画</button>
-        <v-slider v-model="size" :min="10" style="width: 200px;"></v-slider>
-    </v-navigation-drawer>
+    <v-container fluid class="fill-height align-start">
+        <v-row>
+            <v-col cols="12" md="8">
+                <v-card class="pa-4 text-center" elevation="2" min-height="400">
+                    <v-card-title class="text-h6 font-weight-bold px-0 text-left">
+                        カタカムナ 横書き
+                    </v-card-title>
+                    <v-divider class="mb-4"></v-divider>
+                    <div class="d-flex justify-center align-center fill-height mt-4"
+                        style="background-color: lightgray;">
+                        <div class="hor-container">
+                            <template v-for="i in imgs">
+                                <img :src="i" :height="size" />
+                            </template>
+                        </div>
+                    </div>
+                </v-card>
+            </v-col>
+
+            <v-col cols="12" md="4">
+                <v-card class="pa-4" elevation="2">
+                    <v-card-title class="text-h6 font-weight-bold px-0">
+                        🎨 パラメーター
+                    </v-card-title>
+                    <v-divider class="mb-4"></v-divider>
+                    <div class="text-caption mb-1">テキスト</div>
+                    <v-combobox :items="selection" v-model="line" @update:model-value="on_select" />
+                    <div class="text-caption mb-1">文字サイズ: {{ size.toFixed(0) }}</div>
+                    <v-slider v-model="size" :min="10" :max="100" step="1" thumb-label color="primary"
+                        @update:modelValue="on_click" />
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
 
-const selection:string[]=[
+const selection: string[] = [
     'ヒフミヨイ マワリテメクル ムナヤコト アウノスヘシレ カタチサキ',
     'ソラニモロケセ ユヱヌオヲ ハエツヰネ ホンカタカムナ',
     'マカタマノ アマノミナカヌシ タカミムスヒ カムミムスヒ ミスマルノタマ'
@@ -35,7 +51,11 @@ onMounted(() => {
     getImgs();
 });
 
-const onclick = () => {
+const on_click = () => {
+    getImgs();
+}
+
+const on_select = () => {
     getImgs();
 }
 

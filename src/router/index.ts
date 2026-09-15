@@ -6,27 +6,22 @@
 
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
-import Index from '@/pages/index.vue'
-import Horizontal from '@/pages/horizontal.vue'
-import Virtical from '@/pages/virtical.vue'
-import List from '@/pages/list.vue'
+import index from '@/pages/index.vue'
+import horizontal from '@/pages/horizontal.vue';
+import virtical from '@/pages/virtical.vue';
+import list from '@/pages/list.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-        { path: '/', component: Index, meta: { title: 'カタカムナ・うずまき' } },
-        { path: '/horizontal', component: Horizontal, meta: { title: 'カタカムナ・横書き' } },
-        { path: '/virtical', component: Virtical, meta: { title: 'カタカムナ・縦書き' } },
-        { path: '/list', component: List, meta: { title: 'カタカムナ・文字' } },
+        { path: '/', component: index, meta: { title: 'カタカムナ・うずまき' } },
+        { path: '/horizontal', component: horizontal, meta: { title: 'カタカムナ・横書き' } },
+        { path: '/virtical', component: virtical, meta: { title: 'カタカムナ・縦書き' } },
+        { path: '/list', component: list, meta: { title: 'カタカムナ・文字' } },
     ],
 })
-
-router.afterEach((to) => {
-    if (to.meta && typeof to.meta.title === 'string') {
-        document.title = to.meta.title
-    } else {
-        document.title = 'デフォルトのタイトル'
-    }
-})
+router.beforeEach((to) => {
+    document.title = (to.meta.title as string) || 'NO TITLE';
+});
 
 export default router

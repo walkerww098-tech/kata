@@ -1,108 +1,92 @@
 <template>
-    <div class="page">
-        カタカムナ
-        <div class="svg-container">
-            <svg ref="svgRef" width="600" height="600" viewBox="-300 -300 600 600" style="border: 1px solid gray;">
-                <use :href="svgpath + '#kcn'" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)" :width="size * 3"
-                    :height="size * 3" class="icon-style" />
-                <template v-for="p in points">
-                    <text v-if="display_kana" :x="p.tx - 3" :y="p.ty + 3" font-size="x-small">{{ p.yomi || 'ー' }}</text>
-                    <use :href="p.href" :x="p.x - size / 2" :y="p.y - size / 2" :width="size" :height="size"
-                        class="icon-style" />
-                </template>
-            </svg>
-        </div>
-    </div>
-    <v-navigation-drawer color="grey-lighten-1" location="right" width="250" permanent>
-        テキスト<br />
-        <div class="settings">
-            <v-combobox :items="selection" v-model="line" @update:model-value="on_select" />
-            <label>
-                <input type="checkbox" v-model="display_kana">カナ表示
-            </label>
+    <v-container fluid class="fill-height align-start">
+        <v-row>
+            <v-col cols="12" md="8">
+                <v-card class="pa-4 text-center" elevation="2" min-height="400">
+                    <v-card-title class="text-h6 font-weight-bold px-0 text-left">
+                        画像
+                    </v-card-title>
+                    <v-divider class="mb-4"></v-divider>
+                    <div class="d-flex justify-center align-center fill-height mt-4"
+                        style="background-color: lightgray;">
+                        <svg ref="svgRef" :width="svgsize" :height="svgsize" :viewBox="viewBox">
+                            <rect :x="svgsize / -2" :y="svgsize / -2" :width="svgsize" :height="svgsize" fill="white" />
+                            <use :href="svgpath + '#kcn'" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)"
+                                :width="size * 3" :height="size * 3" class="icon-style" />
+                            <template v-for="p in points">
+                                <text v-if="display_kana" :x="p.tx - 3" :y="p.ty + 3" font-size="x-small">{{ p.yomi ||
+                                    'ー' }}</text>
+                                <use :href="p.href" :x="p.x - size / 2" :y="p.y - size / 2" :width="size" :height="size"
+                                    class="icon-style" />
+                            </template>
+                        </svg>
+                    </div>
+                </v-card>
+            </v-col>
 
-            <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
-                <v-col cols="3">
-                    サイズ
-                </v-col>
-                <v-col cols="2">
-                    {{ size.toFixed(0) }}
-                </v-col>
-                <v-col>
-                    <v-slider v-model="size" :min="8" :max="48" @update:model-value="on_select" hide-details
-                        style="width: 140px;" />
-                </v-col>
-            </v-row>
-            <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
-                <v-col cols="3">
-                    分割数
-                </v-col>
-                <v-col cols="2">
-                    {{ devide_n.toFixed(0) }}
-                </v-col>
-                <v-col>
-                    <v-slider v-model="devide_n" :min="12" :max="128" @update:model-value="on_select" hide-details
-                        style="width: 140px;" />
-                </v-col>
-            </v-row>
-            <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
-                <v-col cols="3">
-                    先頭位置
-                </v-col>
-                <v-col cols="2">
-                    {{ radius_init.toFixed(0) }}
-                </v-col>
-                <v-col>
-                    <v-slider v-model="radius_init" @update:model-value="on_select" hide-details
-                        style="width: 140px;" />
-                </v-col>
-            </v-row>
-            <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
-                <v-col cols="3">
-                    広がり1
-                </v-col>
-                <v-col cols="2">
-                    {{ radiusp_step.toFixed(2) }}
-                </v-col>
-                <v-col>
-                    <v-slider v-model="radiusp_step" :max="1" :min="0.01" :step="0.01" @update:model-value="on_select"
-                        hide-details style="width: 140px;" />
-                </v-col>
-            </v-row>
-            <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
-                <v-col cols="3">
-                    広がり2
-                </v-col>
-                <v-col cols="2">
-                    {{ radiuspp_step.toFixed(3) }}
-                </v-col>
-                <v-col>
-                    <v-slider v-model="radiuspp_step" :max="0.1" :min="0.001" :step="0.001"
-                        @update:model-value="on_select" hide-details style="width: 140px;" />
-                </v-col>
-            </v-row>
-            <v-row align="center" cols="auto" density="compact" class="ma-0 pa-0">
-                <v-col cols="3">
-                </v-col>
-                <v-col>
-                    <button @click="on_click">描画</button>
-                </v-col>
-                <v-col>
-                    <button @click="on_download">ダウンロード</button>
-                </v-col>
-            </v-row>
-        </div>
-    </v-navigation-drawer>
+            <v-col cols="12" md="4">
+                <v-card class="pa-4" elevation="2">
+                    <v-card-title class="text-h6 font-weight-bold px-0">
+                        🎨 パラメーター
+                    </v-card-title>
+                    <v-divider class="mb-4"></v-divider>
+
+                    <div class="text-caption mb-1">画像サイズ: {{ svgsize }}</div>
+                    <v-slider v-model="svgsize" :min="100" :max="1000" step="10" thumb-label color="primary"
+                        @update:modelValue="on_click" />
+                    <div class="text-caption mb-1">テキスト</div>
+                    <v-combobox :items="selection" v-model="line" @update:model-value="on_select" />
+                    <label>
+                        <input type="checkbox" v-model="display_kana">カナ表示
+                    </label>
+                    <div class="text-caption mb-1">サイズ : {{ size.toFixed(0) }}</div>
+                    <v-slider v-model="size" :min="8" :max="48" step="1" thumb-label color="primary"
+                        @update:modelValue="on_click" />
+                    <div class="text-caption mb-1">分割数 : {{ devide_n.toFixed(0) }}</div>
+                    <v-slider v-model="devide_n" :min="12" :max="128" step="1" thumb-label color="primary"
+                        @update:modelValue="on_select" />
+                    <div class="text-caption mb-1">先頭位置 : {{ radius_init.toFixed(0) }}</div>
+                    <v-slider v-model="radius_init" :min="20" :max="80" step="1" thumb-label color="primary"
+                        @update:modelValue="on_select" />
+                    <div class="text-caption mb-1">広がり1 : {{ radiusp_step.toFixed(2) }}</div>
+                    <v-slider v-model="radiusp_step" :min="0.01" :max="1" step="0.01" thumb-label color="primary"
+                        @update:modelValue="on_select" />
+                    <div class="text-caption mb-1">広がり2 : {{ radiuspp_step.toFixed(3) }}</div>
+                    <v-slider v-model="radiuspp_step" :min="0.001" :max="0.1" step="0.001" thumb-label color="primary"
+                        @update:modelValue="on_select" />
+                    <v-row density="compact" class="ma-0 pa-0">
+                        <v-col cols="1"></v-col>
+                        <v-col cols="5">
+                            <v-btn @click="on_click" color="primary" block>描画</v-btn>
+                        </v-col>
+                        <v-col cols="5">
+                            <v-btn @click="download" color="secondary" block>ダウンロード</v-btn>
+                        </v-col>
+                    </v-row>
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, ref } from "vue";
 import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
+import { useApplicationStore } from '@/stores/applicationStore';
 
 const selection: string[] = [
     'ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
     'ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
     'マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
 ];
+
+const app = useApplicationStore();
+
+const svgsize = ref(500);
+const viewBox = computed(() => {
+    return "-" + svgsize.value / 2 + " -" + svgsize.value / 2 +
+        " " + svgsize.value + " " + svgsize.value;
+});
+
 const line = ref(selection[0]);
 const size = ref(20);
 const devide_n = ref(24);
@@ -133,6 +117,7 @@ const getpoints = () => {
     let radius = radius_init.value;
     let radiusp = 0;
     let radiuspp = 0;
+
     for (let i = 0; i < line.value.length; i++) {
         const degree = (i % div) * angle_step - 90;
         const angle = degree * (Math.PI / 180);
@@ -141,7 +126,7 @@ const getpoints = () => {
         const tx = (radius + text_offset) * Math.cos(angle);
         const ty = (radius + text_offset) * Math.sin(angle);
 
-        const id = i
+        const id = i;
         const key = katakanaIdx.get(katakana[i]) || '00';
         const href = `${svgpath}#k${key}`
 
@@ -153,12 +138,13 @@ const getpoints = () => {
         } else if (i < 3) {
             //            radius += (radiusp + 10);
         }
+
         list.push({ id: id, x: x, y: y, tx: tx, ty: ty, yomi: line.value[i], key: key, href: href });
     }
     return list;
 };
 
-const on_download = async () => {
+const download = async () => {
     if (!svgRef.value)
         return
     const clonedSvg = svgRef.value.cloneNode(true) as SVGGraphicsElement;
@@ -178,7 +164,6 @@ const on_download = async () => {
         const externalSvgDoc = parser.parseFromString(svgText, 'image/svg+xml');
         const style = externalSvgDoc.getElementsByTagName("style")[0];
         if (style) clonedSvg.prepend(style);
-
         useElements.forEach((useEl) => {
             const href = useEl.getAttribute('href') || '';
             const id = href.split('#')[1];
@@ -214,7 +199,6 @@ const on_download = async () => {
                     }
                     finalContent = g;
                 }
-
                 // ラッパーとなる <g> タグを作成
                 const group = document.createElementNS('http://w3.org', 'g');
 
@@ -241,8 +225,9 @@ const on_download = async () => {
                 if (useEl.hasAttribute('style')) {
                     group.setAttribute('style', useEl.getAttribute('style') ?? '');
                 }
-                // VueのScoped CSS用属性（data-v-xxxxxx）
+
                 /*
+                // VueのScoped CSS用属性（data-v-xxxxxx）
                 Array.from(useEl.attributes).forEach(attr => {
                     if (attr.name.startsWith('data-v-')) {
                         group.setAttribute(attr.name, attr.value);
@@ -254,9 +239,7 @@ const on_download = async () => {
                     }
                 });
                 */
-
                 group.appendChild(finalContent);
-
                 if (useEl.parentNode) {
                     useEl.parentNode.replaceChild(group, useEl);
                 }
@@ -278,7 +261,7 @@ const on_download = async () => {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-     link.download = `katakamuna.svg`
+    link.download = `katakamuna.svg`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

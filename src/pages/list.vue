@@ -1,35 +1,62 @@
 <template>
-    <div class="page">
-        カタカムナ文字一覧
-        <div class="svg-container">
-            <svg width="400" height="640" viewBox="0 -20 400 640">
-                <template v-for="p in points">
-                    <use :href="p.href" :x="p.x" :y="p.y" :height="size" :width="size" class="icon-style" />
-                    <text :x="p.tx" :y="p.ty">{{ katakana[p.id - 1] }}</text>
-                </template>
-            </svg>
-        </div>
-    </div>
-    <v-navigation-drawer color="grey-lighten-1" location="right" width="250" permanent>
-        文字サイズ : {{ size.toFixed(0) }}
-        <button @click="onclick">描画</button>
-        <v-slider v-model="size" 
-                            :min="10" :max="100"
-                            @update:modelValue="onclick" style="width: 200px;"></v-slider>
-    </v-navigation-drawer>
+    <v-container fluid class="fill-height align-start">
+        <v-row>
+            <v-col cols="12" md="8">
+                <v-card class="pa-4 text-center" elevation="2" min-height="400">
+                    <v-card-title class="text-h6 font-weight-bold px-0 text-left">
+                        カタカムナ文字一覧
+                    </v-card-title>
+                    <v-divider class="mb-4"></v-divider>
+                    <div class="d-flex fill-height mt-4" style="background-color: gray;">
+                        <svg ref="svgRef" :width="svgw" :height="svgh" :viewBox="viewBox" style="background-color: white;">
+                            <template v-for="p in points">
+                                <use :href="p.href" :x="p.x" :y="p.y" :height="size" :width="size" class="icon-style" />
+                                <text :x="p.tx" :y="p.ty">{{ katakana[p.id - 1] }}</text>
+                            </template>
+                        </svg>
+                    </div>
+                </v-card>
+            </v-col>
+            <v-col cols="12" md="4">
+                <v-card class="pa-4" elevation="2">
+                    <v-card-title class="text-h6 font-weight-bold px-0">
+                        🎨 パラメーター
+                    </v-card-title>
+                    <v-divider class="mb-4"></v-divider>
+                    <div class="text-caption mb-1">画像サイズ(W): {{ svgw }}</div>
+                    <v-slider v-model="svgw" :min="100" :max="700" step="10" thumb-label color="primary"
+                        @update:modelValue="on_click" />
+                    <div class="text-caption mb-1">画像サイズ(H): {{ svgh }}</div>
+                    <v-slider v-model="svgh" :min="100" :max="700" step="10" thumb-label color="primary"
+                        @update:modelValue="on_click" />
+                    <div class="text-caption mb-1">文字サイズ: {{ size.toFixed(0) }}</div>
+                    <v-slider v-model="size" :min="10" :max="100" step="1" thumb-label color="primary"
+                        @update:modelValue="on_click" />
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
+import { useApplicationStore } from '@/stores/applicationStore';
+
+const app = useApplicationStore();
 
 const points = ref<Point[]>([]);
-const size = ref(40);
+const size = ref(30);
+const svgw = ref(340);
+const svgh = ref(600);
+const viewBox = computed(() => {
+    return "0 -40 " + svgw.value + " " + svgh.value;
+});
 
 onMounted(() => {
     points.value = getpoints();
 });
 
-const onclick = () => {
+const on_click = () => {
     points.value = getpoints();
 }
 
@@ -46,8 +73,8 @@ const getpoints = () => {
         const href = `${svgpath}#k${key}`
         list.push({ id: id, x: x, y: y, tx: tx, ty: ty, yomi: katakana[i], key: key, href: href });
         if (++count < 5) {
-            x += size.value *1.5 + 10;
-            tx += size.value *1.5 + 10;
+            x += size.value * 1.5 + 10;
+            tx += size.value * 1.5 + 10;
         } else {
             count = 0;
             x = 0;
@@ -58,7 +85,6 @@ const getpoints = () => {
     }
     return list;
 }
-
 </script>
 <style scoped>
 div.svg-container {
