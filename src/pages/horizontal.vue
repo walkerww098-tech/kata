@@ -39,9 +39,10 @@ import { onMounted, ref } from 'vue';
 import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
 
 const selection: string[] = [
-    'ヒフミヨイ マワリテメクル ムナヤコト アウノスヘシレ カタチサキ',
-    'ソラニモロケセ ユヱヌオヲ ハエツヰネ ホンカタカムナ',
-    'マカタマノ アマノミナカヌシ タカミムスヒ カムミムスヒ ミスマルノタマ'
+//    'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン',
+    'ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
+    'ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
+    'マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
 ];
 const line = ref(selection[0]);
 const size = ref(60);

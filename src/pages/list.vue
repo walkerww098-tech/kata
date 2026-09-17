@@ -9,9 +9,17 @@
                     <v-divider class="mb-4"></v-divider>
                     <div class="d-flex fill-height mt-4" style="background-color: gray;">
                         <svg ref="svgRef" :width="svgw" :height="svgh" :viewBox="viewBox" style="background-color: white;">
+                            <!--
+                            <use href="/assets/katakamuna.svg#c01" x="0" y="0" :height="size" :width="size" class="icon-style" />
+                            <use href="/assets/katakamuna.svg#c02" x="0" y="100" :height="size" :width="size" class="icon-style" />
+                            <use href="/assets/katakamuna.svg#c03" x="0" y="200" :height="size" :width="size" class="icon-style" />
+                            -->
                             <template v-for="p in points">
                                 <use :href="p.href" :x="p.x" :y="p.y" :height="size" :width="size" class="icon-style" />
-                                <text :x="p.tx" :y="p.ty">{{ katakana[p.id - 1] }}</text>
+                                <!--
+                                <text :x="p.tx" :y="p.ty">{{ katakana[p.id] }}{{ p.href.slice(-3) }}</text>
+                                -->
+                                <text :x="p.tx" :y="p.ty">{{ katakana[p.id] }}</text>
                             </template>
                         </svg>
                     </div>
@@ -67,7 +75,7 @@ const getpoints = () => {
     let tx = 10;
     let ty = 0;
     let count = 0;
-    for (let i = 1; i <= 50; i++) {
+    for (let i = 0; i < 50; i++) {
         const id = i
         const key = katakanaIdx.get(katakana[i]) || '00';
         const href = `${svgpath}#k${key}`

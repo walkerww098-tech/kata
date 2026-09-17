@@ -11,7 +11,7 @@
                         style="background-color: lightgray;">
                         <svg ref="svgRef" :width="svgsize" :height="svgsize" :viewBox="viewBox">
                             <rect :x="svgsize / -2" :y="svgsize / -2" :width="svgsize" :height="svgsize" fill="white" />
-                            <use :href="svgpath + '#kcn'" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)"
+                            <use :href="centersymbol" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)"
                                 :width="size * 3" :height="size * 3" class="icon-style" />
                             <template v-for="p in points">
                                 <text v-if="display_kana" :x="p.tx - 3" :y="p.ty + 3" font-size="x-small">{{ p.yomi ||
@@ -35,7 +35,7 @@
                     <v-slider v-model="svgsize" :min="100" :max="1000" step="10" thumb-label color="primary"
                         @update:modelValue="on_click" />
                     <div class="text-caption mb-1">テキスト</div>
-                    <v-combobox :items="selection" v-model="line" @update:model-value="on_select" />
+                    <v-combobox :items="selection" v-model="line1" @update:model-value="on_select" />
                     <label>
                         <input type="checkbox" v-model="display_kana">カナ表示
                     </label>
@@ -74,9 +74,10 @@ import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
 import { useApplicationStore } from '@/stores/applicationStore';
 
 const selection: string[] = [
-    'ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
-    'ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
-    'マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
+//    'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン',
+    '1ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
+    '1ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
+    '2マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
 ];
 
 const app = useApplicationStore();
@@ -87,7 +88,8 @@ const viewBox = computed(() => {
         " " + svgsize.value + " " + svgsize.value;
 });
 
-const line = ref(selection[0]);
+const line1 = ref(selection[0]);
+const line2 = ref('');
 const size = ref(20);
 const devide_n = ref(24);
 const points = ref<Point[]>([]);
@@ -108,6 +110,8 @@ const on_select = () => {
 const on_click = () => {
     points.value = getpoints();
 }
+const centersymbol = ref('');
+const regex = /^([123])/;
 
 const getpoints = () => {
     let list: Point[] = [];
@@ -117,8 +121,15 @@ const getpoints = () => {
     let radius = radius_init.value;
     let radiusp = 0;
     let radiuspp = 0;
-
-    for (let i = 0; i < line.value.length; i++) {
+    const match = regex.exec(line1.value);
+    if (match){
+        centersymbol.value = `${svgpath}#c${match[1].padStart(2, '0')}`;
+        line2.value = line1.value.slice(1);
+    } else {
+        centersymbol.value = `${svgpath}#c01`;
+        line2.value = line1.value;
+    }
+    for (let i = 0; i < line2.value.length; i++) {
         const degree = (i % div) * angle_step - 90;
         const angle = degree * (Math.PI / 180);
         const x = radius * Math.cos(angle);
@@ -138,8 +149,7 @@ const getpoints = () => {
         } else if (i < 3) {
             //            radius += (radiusp + 10);
         }
-
-        list.push({ id: id, x: x, y: y, tx: tx, ty: ty, yomi: line.value[i], key: key, href: href });
+        list.push({ id: id, x: x, y: y, tx: tx, ty: ty, yomi: line2.value[i], key: key, href: href });
     }
     return list;
 };
