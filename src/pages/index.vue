@@ -11,7 +11,7 @@
                         style="background-color: lightgray;">
                         <svg ref="svgRef" :width="svgsize" :height="svgsize" :viewBox="viewBox">
                             <rect :x="svgsize / -2" :y="svgsize / -2" :width="svgsize" :height="svgsize" fill="white" />
-                            <use :href="centersymbol" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)"
+                            <use :href="centerSymbol.src" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)"
                                 :width="size * 3" :height="size * 3" class="icon-style" />
                             <template v-for="p in points">
                                 <text v-if="display_kana" :x="p.tx - 3" :y="p.ty + 3" font-size="x-small">{{ p.yomi ||
@@ -30,15 +30,22 @@
                         🎨 パラメーター
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
-
-                    <div class="text-caption mb-1">画像サイズ: {{ svgsize }}</div>
-                    <v-slider v-model="svgsize" :min="100" :max="1000" step="10" thumb-label color="primary"
-                        @update:modelValue="on_click" />
                     <div class="text-caption mb-1">テキスト</div>
-                    <v-combobox :items="selection" v-model="line1" @update:model-value="on_select" />
+                    <v-combobox :items="selection" item-title="text" item-value="text" v-model="selectedLine"
+                        @update:model-value="on_select" />
+                    <div class="text-caption mb-1">中心図形 : 
+                        <select v-model="centerSymbol">
+                            <option v-for="option in centerSymbols" :key="option.value" :value="option">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
                     <label>
                         <input type="checkbox" v-model="display_kana">カナ表示
                     </label>
+                    <div class="text-caption mb-1">画像サイズ: {{ svgsize }}</div>
+                    <v-slider v-model="svgsize" :min="100" :max="1000" step="10" thumb-label color="primary"
+                        @update:modelValue="on_click" />
                     <div class="text-caption mb-1">サイズ : {{ size.toFixed(0) }}</div>
                     <v-slider v-model="size" :min="8" :max="48" step="1" thumb-label color="primary"
                         @update:modelValue="on_click" />
@@ -73,14 +80,22 @@ import { computed, onMounted, ref } from "vue";
 import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
 import { useApplicationStore } from '@/stores/applicationStore';
 
+const app = useApplicationStore();
+
 const selection: string[] = [
 //    'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン',
-    '1ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
-    '1ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
-    '2マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
+    'ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
+    'ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
+    'マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
 ];
+const selectedLine = ref(selection[0]);
 
-const app = useApplicationStore();
+const centerSymbols: any[] = [
+    { key: '1', value: 'c01', label: 'ヤタノカカミ', src: './assets/katakamuna.svg#c01' },
+    { key: '2', value: 'c02', label: 'フトマニ', src: './assets/katakamuna.svg#c02' },
+    { key: '3', value: 'c03', label: 'ミクマリ', src: './assets/katakamuna.svg#c03' }
+];
+const centerSymbol = ref(centerSymbols[0]);
 
 const svgsize = ref(500);
 const viewBox = computed(() => {
@@ -88,8 +103,6 @@ const viewBox = computed(() => {
         " " + svgsize.value + " " + svgsize.value;
 });
 
-const line1 = ref(selection[0]);
-const line2 = ref('');
 const size = ref(20);
 const devide_n = ref(24);
 const points = ref<Point[]>([]);
@@ -104,14 +117,19 @@ onMounted(() => {
 });
 
 const on_select = () => {
+    const line: string = selectedLine.value;
+    const idx = selection.findIndex(x => x === line);
+    // ３番目(idx 2)はミクマリ、その他はとりあえずヤタノカカミとしておく。
+    if (idx == 2)
+        centerSymbol.value = centerSymbols[2];
+    else
+        centerSymbol.value = centerSymbols[0];
     points.value = getpoints();
 }
 
 const on_click = () => {
     points.value = getpoints();
 }
-const centersymbol = ref('');
-const regex = /^([123])/;
 
 const getpoints = () => {
     let list: Point[] = [];
@@ -121,15 +139,9 @@ const getpoints = () => {
     let radius = radius_init.value;
     let radiusp = 0;
     let radiuspp = 0;
-    const match = regex.exec(line1.value);
-    if (match){
-        centersymbol.value = `${svgpath}#c${match[1].padStart(2, '0')}`;
-        line2.value = line1.value.slice(1);
-    } else {
-        centersymbol.value = `${svgpath}#c01`;
-        line2.value = line1.value;
-    }
-    for (let i = 0; i < line2.value.length; i++) {
+
+    const line: string = selectedLine.value;
+    for (let i = 0; i < line.length; i++) {
         const degree = (i % div) * angle_step - 90;
         const angle = degree * (Math.PI / 180);
         const x = radius * Math.cos(angle);
@@ -138,7 +150,7 @@ const getpoints = () => {
         const ty = (radius + text_offset) * Math.sin(angle);
 
         const id = i;
-        const key = katakanaIdx.get(katakana[i]) || '00';
+        const key = katakanaIdx.get(line[i]) || '00';
         const href = `${svgpath}#k${key}`
 
         radiuspp += radiuspp_step.value;
@@ -147,9 +159,9 @@ const getpoints = () => {
         if (i < 2) {
             radius += (radiusp + 10);
         } else if (i < 3) {
-            //            radius += (radiusp + 10);
+            // radius += (radiusp + 10);
         }
-        list.push({ id: id, x: x, y: y, tx: tx, ty: ty, yomi: line2.value[i], key: key, href: href });
+        list.push({ id: id, x: x, y: y, tx: tx, ty: ty, yomi: line[i], key: key, href: href });
     }
     return list;
 };

@@ -12,7 +12,7 @@
                         <v-container class="d-flex justify-center" v-if="imgs.length > 0">
                             <v-sheet class="image-vertical-container pa-4" elevation="5">
                                 <template v-for="i in imgs">
-                                    <img :src="i" :height="size" />
+                                <img :src="i.src" :height="size" :alt="i.alt" :title="i.title" />
                                 </template>
                             </v-sheet>
                         </v-container>
@@ -47,7 +47,7 @@ const selection: string[] = [
 ];
 const line = ref(selection[0]);
 const size = ref(60);
-const imgs = ref<string[]>([]);
+const imgs = ref<{src:string, alt:string, title:string}[]>([]);
 
 onMounted(() => {
     getImgs();
@@ -63,8 +63,8 @@ const on_select = () => {
 
 const getImgs = () => {
     imgs.value = [...line.value].map(c => {
-        //return "/src/assets/katakamuna-k" + (katakanaIdx.get(c) ?? "00") + ".svg";
-        return "assets/katakamuna-k" + (katakanaIdx.get(c) ?? "00") + ".svg";
+        const src = "assets/katakamuna-k" + (katakanaIdx.get(c) ?? "00") + ".svg";
+        return { src:src, alt:c, title:c };
     });
 }
 </script>
