@@ -1,13 +1,9 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <style>
-    .base-line { stroke: black; stroke-width: 4; fill: none; }
-    .node-point { stroke: black; stroke-width: 4; fill: none; }
-  </style>
-<line x1="96.860" y1="159.918" x2="96.860" y2="40.082" class="base-line" />
-    <line x1="103.140" y1="159.918" x2="103.140" y2="40.082" class="base-line" />
-    <path d="M 96.860,159.918 A 60,60 0 0,1 96.860,40.082" class="base-line" />
-    <path d="M 103.140,40.082 A 60,60 0 0,1 103.140,159.918" class="base-line" />
-    <circle cx="160" cy="100" r="10" class="node-point" />
-    <circle cx="40" cy="100" r="10" class="node-point" />
+<line x1="96.860" y1="159.918" x2="96.860" y2="40.082" stroke="black" stroke-width="4" fill="none" />
+    <line x1="103.140" y1="159.918" x2="103.140" y2="40.082" stroke="black" stroke-width="4" fill="none" />
+    <path d="M 96.860,159.918 A 60,60 0 0,1 96.860,40.082" stroke="black" stroke-width="4" fill="none" />
+    <path d="M 103.140,40.082 A 60,60 0 0,1 103.140,159.918" stroke="black" stroke-width="4" fill="none" />
+    <circle cx="160" cy="100" r="10" stroke="black" stroke-width="4" fill="none" />
+    <circle cx="40" cy="100" r="10" stroke="black" stroke-width="4" fill="none" />
 
 </svg>

@@ -12,12 +12,12 @@
                         <svg ref="svgRef" :width="svgsize" :height="svgsize" :viewBox="viewBox">
                             <rect :x="svgsize / -2" :y="svgsize / -2" :width="svgsize" :height="svgsize" fill="white" />
                             <use :href="centerSymbol.src" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)"
-                                :width="size * 3" :height="size * 3" class="icon-style" />
+                                :width="size * 3" :height="size * 3" />
                             <template v-for="p in points">
                                 <text v-if="display_kana" :x="p.tx - 3" :y="p.ty + 3" font-size="x-small">{{ p.yomi ||
                                     'ー' }}</text>
-                                <use :href="p.href" :x="p.x - size / 2" :y="p.y - size / 2" :width="size" :height="size"
-                                    class="icon-style" />
+                                <use :href="p.href" :x="p.x - size / 2" :y="p.y - size / 2" :width="size"
+                                    :height="size" />
                             </template>
                         </svg>
                     </div>
@@ -33,7 +33,7 @@
                     <div class="text-caption mb-1">テキスト</div>
                     <v-combobox :items="selection" item-title="text" item-value="text" v-model="selectedLine"
                         @update:model-value="on_select" />
-                    <div class="text-caption mb-1">中心図形 : 
+                    <div class="text-caption mb-1">中心図形 :
                         <select v-model="centerSymbol">
                             <option v-for="option in centerSymbols" :key="option.value" :value="option">
                                 {{ option.label }}
@@ -62,12 +62,14 @@
                     <v-slider v-model="radiuspp_step" :min="0.001" :max="0.1" step="0.001" thumb-label color="primary"
                         @update:modelValue="on_select" />
                     <v-row density="compact" class="ma-0 pa-0">
-                        <v-col cols="1"></v-col>
-                        <v-col cols="5">
-                            <v-btn @click="on_click" color="primary" block>描画</v-btn>
+                        <v-col cols="6">
+                            ダウンロード
                         </v-col>
-                        <v-col cols="5">
-                            <v-btn @click="download" color="secondary" block>ダウンロード</v-btn>
+                        <v-col cols="3">
+                            <v-btn @click="downloadSvg" color="primary" block>SVG</v-btn>
+                        </v-col>
+                        <v-col cols="3">
+                            <v-btn @click="downloadPng" color="primary" block>PNG</v-btn>
                         </v-col>
                     </v-row>
                 </v-card>
@@ -83,7 +85,7 @@ import { useApplicationStore } from '@/stores/applicationStore';
 const app = useApplicationStore();
 
 const selection: string[] = [
-//    'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン',
+    //    'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン',
     'ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
     'ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
     'マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
@@ -119,6 +121,7 @@ onMounted(() => {
 const on_select = () => {
     const line: string = selectedLine.value;
     const idx = selection.findIndex(x => x === line);
+    // 中心図形
     // ３番目(idx 2)はミクマリ、その他はとりあえずヤタノカカミとしておく。
     if (idx == 2)
         centerSymbol.value = centerSymbols[2];
@@ -166,7 +169,7 @@ const getpoints = () => {
     return list;
 };
 
-const download = async () => {
+const getSvg = async () => {
     if (!svgRef.value)
         return
     const clonedSvg = svgRef.value.cloneNode(true) as SVGGraphicsElement;
@@ -214,7 +217,7 @@ const download = async () => {
                 }
                 // シンボルをgタグへ変換
                 if (importedContent.tagName.toLowerCase() === 'symbol') {
-                    const g = document.createElementNS('http://w3.org', 'g');
+                    const g = document.createElement('g');
                     while (importedContent.firstChild) {
                         // シンボルの内容をgタグへ
                         g.appendChild(importedContent.firstChild);
@@ -222,32 +225,26 @@ const download = async () => {
                     finalContent = g;
                 }
                 // ラッパーとなる <g> タグを作成
-                const group = document.createElementNS('http://w3.org', 'g');
-
+                const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 // <use> が持っていた位置 (x, y) と サイズ (width, height) を取得
                 const x = parseFloat(useEl.getAttribute('x') || '0');
                 const y = parseFloat(useEl.getAttribute('y') || '0');
                 const width = parseFloat(useEl.getAttribute('width') || '0');
                 const height = parseFloat(useEl.getAttribute('height') || '0');
-
                 // 本来のサイズからどれくらい拡大縮小すべきか倍率（scale）を計算
                 const scaleX = width > 0 ? width / originalWidth : 1;
                 const scaleY = height > 0 ? height / originalHeight : 1;
-
                 // 位置の移動（translate）と拡大縮小（scale）をまとめて適用
                 // scaleだけだと位置まで拡大されてしまうので、先に移動させてから縮尺を変えます
                 group.setAttribute('transform', `translate(${x}, ${y}) scale(${scaleX}, ${scaleY})`);
-
                 // class
                 if (useEl.hasAttribute('class')) {
                     group.setAttribute('class', useEl.getAttribute('class') ?? '');
                 }
-
                 // インラインスタイル (style="..." )
                 if (useEl.hasAttribute('style')) {
                     group.setAttribute('style', useEl.getAttribute('style') ?? '');
                 }
-
                 /*
                 // VueのScoped CSS用属性（data-v-xxxxxx）
                 Array.from(useEl.attributes).forEach(attr => {
@@ -261,7 +258,14 @@ const download = async () => {
                     }
                 });
                 */
-                group.appendChild(finalContent);
+                /*
+                 group.appendChild(finalContent);
+                 */
+                Array.from(finalContent.children).forEach((x) => {
+                    group.appendChild(x);
+                });
+
+                //group.append
                 if (useEl.parentNode) {
                     useEl.parentNode.replaceChild(group, useEl);
                 }
@@ -270,15 +274,15 @@ const download = async () => {
     } catch (error) {
         console.error('外部SVGファイルの取得・展開に失敗しました:', error);
     }
+    return clonedSvg;
+}
 
-    // XML文字列に変換してダウンロード
+const downloadSvg = async () => {
+    const clonedSvg = await getSvg();
+    if (!clonedSvg)
+        return
     const serializer = new XMLSerializer()
     let svgString = serializer.serializeToString(clonedSvg)
-
-    if (!svgString.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
-        svgString = svgString.replace(/^<svg/, '<svg xmlns="http://w3.org"');
-    }
-
     const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -288,6 +292,51 @@ const download = async () => {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
+}
+
+const downloadPng = async () => {
+    const clonedSvg = await getSvg();
+    if (!clonedSvg)
+        return
+    // XML文字列に変換してダウンロード
+    const serializer = new XMLSerializer()
+    let svgString = serializer.serializeToString(clonedSvg)
+    // 2. サイズ
+    const width = svgsize.value;
+    const height = svgsize.value;
+    // 3. BlobおよびURLを作成
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
+    const svgUrl = URL.createObjectURL(blob)
+    // 4. Imageオブジェクトを使ってCanvasに描画
+    const img = new Image()
+    img.onload = () => {
+        // 仮想Canvasの作成
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+            // 背景を透明（または白）にしてSVGを描画
+            ctx.drawImage(img, 0, 0, width, height)
+            // 5. CanvasからPNGのData URLを生成
+            const pngUrl = canvas.toDataURL('image/png')
+            // 6. ダウンロード用のリンクを作成してクリック
+            const link = document.createElement('a')
+            link.href = pngUrl
+            link.download = `katakamuna.png`
+            document.body.appendChild(link)
+            link.click()
+            // 7. 後片付け
+            document.body.removeChild(link)
+        }
+        URL.revokeObjectURL(svgUrl)
+    }
+    img.onerror = () => {
+        console.error('画像の読み込みに失敗しました。')
+        URL.revokeObjectURL(svgUrl)
+    }
+    // Imageの読み込みを開始
+    img.src = svgUrl
 }
 </script>
 <style scoped>

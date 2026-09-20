@@ -1,12 +1,8 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <style>
-    .base-line { stroke: black; stroke-width: 4; fill: none; }
-    .node-point { stroke: black; stroke-width: 4; fill: none; }
-  </style>
-<circle cx="100" cy="100" r="60" class="base-line" />
-    <line x1="120.521209" y1="156.381557" x2="120.521209" y2="43.618443" class="base-line" />
-    <line x1="156.381557" y1="120.521209" x2="43.618443" y2="120.521209" class="base-line" />
-    <line x1="79.478791" y1="156.381557" x2="79.478791" y2="43.618443" class="base-line" />
-    <line x1="43.618443" y1="79.478791" x2="156.381557" y2="79.478791" class="base-line" />
+<circle cx="100" cy="100" r="60" stroke="black" stroke-width="4" fill="none" />
+    <line x1="120.521209" y1="156.381557" x2="120.521209" y2="43.618443" stroke="black" stroke-width="4" fill="none" />
+    <line x1="156.381557" y1="120.521209" x2="43.618443" y2="120.521209" stroke="black" stroke-width="4" fill="none" />
+    <line x1="79.478791" y1="156.381557" x2="79.478791" y2="43.618443" stroke="black" stroke-width="4" fill="none" />
+    <line x1="43.618443" y1="79.478791" x2="156.381557" y2="79.478791" stroke="black" stroke-width="4" fill="none" />
 
 </svg>
