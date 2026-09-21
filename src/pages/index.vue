@@ -11,13 +11,12 @@
                         style="background-color: lightgray;">
                         <svg ref="svgRef" :width="svgsize" :height="svgsize" :viewBox="viewBox">
                             <rect :x="svgsize / -2" :y="svgsize / -2" :width="svgsize" :height="svgsize" fill="white" />
-                            <use :href="centerSymbol.src" :x="0 - (size * 3 / 2)" :y="0 - (size * 3 / 2)"
-                                :width="size * 3" :height="size * 3" />
+                            <use :href="centerSymbol.src" :x="0 - (size * 2 / 2)" :y="0 - (size * 2 / 2)" :width="size * 2" :height="size * 2" stroke-width="1" />
                             <template v-for="p in points">
                                 <text v-if="display_kana" :x="p.tx - 3" :y="p.ty + 3" font-size="x-small">{{ p.yomi ||
                                     'ー' }}</text>
                                 <use :href="p.href" :x="p.x - size / 2" :y="p.y - size / 2" :width="size"
-                                    :height="size" />
+                                    :height="size" stroke-width="4" />
                             </template>
                         </svg>
                     </div>
@@ -50,7 +49,7 @@
                     <v-slider v-model="size" :min="8" :max="48" step="1" thumb-label color="primary"
                         @update:modelValue="on_click" />
                     <div class="text-caption mb-1">分割数 : {{ devide_n.toFixed(0) }}</div>
-                    <v-slider v-model="devide_n" :min="12" :max="128" step="1" thumb-label color="primary"
+                    <v-slider v-model="devide_n" :min="12" :max="32" step="1" thumb-label color="primary"
                         @update:modelValue="on_select" />
                     <div class="text-caption mb-1">先頭位置 : {{ radius_init.toFixed(0) }}</div>
                     <v-slider v-model="radius_init" :min="20" :max="80" step="1" thumb-label color="primary"
@@ -159,10 +158,12 @@ const getpoints = () => {
         radiuspp += radiuspp_step.value;
         radiusp += (radiusp_step.value + radiuspp);
         radius += radiusp;
-        if (i < 2) {
+        if (i < 1) {
             radius += (radiusp + 10);
+        } else if (i < 2) {
+            radius += (radiusp + 5);
         } else if (i < 3) {
-            // radius += (radiusp + 10);
+            //radius += (radiusp + 2);
         }
         list.push({ id: id, x: x, y: y, tx: tx, ty: ty, yomi: line[i], key: key, href: href });
     }
@@ -250,7 +251,6 @@ const getSvg = async () => {
                 Array.from(useEl.attributes).forEach(attr => {
                     if (attr.name.startsWith('data-v-')) {
                         group.setAttribute(attr.name, attr.value);
-                        // 中身の要素（pathなど）にも念のため波及させてスタイルを当てる
                         finalContent.setAttribute(attr.name, attr.value);
                         Array.from(finalContent.querySelectorAll('*')).forEach(child => {
                             child.setAttribute(attr.name, attr.value);
@@ -258,9 +258,6 @@ const getSvg = async () => {
                     }
                 });
                 */
-                /*
-                 group.appendChild(finalContent);
-                 */
                 Array.from(finalContent.children).forEach((x) => {
                     group.appendChild(x);
                 });
