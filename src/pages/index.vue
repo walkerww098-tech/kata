@@ -4,19 +4,21 @@
             <v-col cols="12" md="8">
                 <v-card class="pa-4 text-center" elevation="2" min-height="400">
                     <v-card-title class="text-h6 font-weight-bold px-0 text-left">
-                        画像
+                        <v-combobox :items="selection" item-title="text" item-value="text" v-model="selectedLine"
+                            @update:model-value="on_select" />
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
                     <div class="d-flex justify-center align-center fill-height mt-4"
                         style="background-color: lightgray;">
                         <svg ref="svgRef" :width="svgsize" :height="svgsize" :viewBox="viewBox">
                             <rect :x="svgsize / -2" :y="svgsize / -2" :width="svgsize" :height="svgsize" fill="white" />
-                            <use :href="centerSymbol.src" :x="0 - (size * 2 / 2)" :y="0 - (size * 2 / 2)" :width="size * 2" :height="size * 2" stroke-width="1" />
+                            <use :href="centerSymbol.src" :x="0 - (size * 2 / 2)" :y="0 - (size * 2 / 2)"
+                                :width="size * 2" :height="size * 2" stroke-width="1" />
                             <template v-for="p in points">
                                 <text v-if="display_kana" :x="p.tx - 3" :y="p.ty + 3" font-size="x-small">{{ p.yomi ||
                                     'ー' }}</text>
-                                <use :href="p.href" :x="p.x - size / 2" :y="p.y - size / 2" :width="size"
-                                    :height="size" stroke-width="4" />
+                                <use :href="p.href" :x="p.x - size / 2" :y="p.y - size / 2" :width="size" :height="size"
+                                    stroke-width="4" />
                             </template>
                         </svg>
                     </div>
@@ -26,12 +28,9 @@
             <v-col cols="12" md="4">
                 <v-card class="pa-4" elevation="2">
                     <v-card-title class="text-h6 font-weight-bold px-0">
-                        🎨 パラメーター
+                        🎨 設定
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
-                    <div class="text-caption mb-1">テキスト</div>
-                    <v-combobox :items="selection" item-title="text" item-value="text" v-model="selectedLine"
-                        @update:model-value="on_select" />
                     <div class="text-caption mb-1">中心図形 :
                         <select v-model="centerSymbol">
                             <option v-for="option in centerSymbols" :key="option.value" :value="option">
@@ -78,7 +77,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, ref } from "vue";
-import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
+import { type Point, katakana, katakanaIdx, katakanaOnly, svgpath } from '@/lib/const';
 import { useApplicationStore } from '@/stores/applicationStore';
 
 const app = useApplicationStore();
@@ -142,7 +141,7 @@ const getpoints = () => {
     let radiusp = 0;
     let radiuspp = 0;
 
-    const line: string = selectedLine.value;
+    const line: string = katakanaOnly(selectedLine.value);
     for (let i = 0; i < line.length; i++) {
         const degree = (i % div) * angle_step - 90;
         const angle = degree * (Math.PI / 180);

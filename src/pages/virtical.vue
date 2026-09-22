@@ -4,7 +4,7 @@
             <v-col cols="12" md="8">
                 <v-card class="pa-4 text-center" elevation="2" min-height="400">
                     <v-card-title class="text-h6 font-weight-bold px-0 text-left">
-                        カタカムナ 縦書き
+                        <v-combobox :items="selection" v-model="selectedLine" @update:model-value="on_select" />
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
                     <div class="d-flex justify-center align-center fill-height mt-4"
@@ -12,7 +12,7 @@
                         <v-container class="d-flex justify-center" v-if="imgs.length > 0">
                             <v-sheet class="image-vertical-container pa-4" elevation="5">
                                 <template v-for="i in imgs">
-                                <img :src="i.src" :height="size" :alt="i.alt" :title="i.title" />
+                                    <img :src="i.src" :height="size" :alt="i.alt" :title="i.title" />
                                 </template>
                             </v-sheet>
                         </v-container>
@@ -23,11 +23,13 @@
             <v-col cols="12" md="4">
                 <v-card class="pa-4" elevation="2">
                     <v-card-title class="text-h6 font-weight-bold px-0">
-                        🎨 パラメーター
+                        🎨 設定
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
+                    <!--
                     <div class="text-caption mb-1">テキスト</div>
                     <v-combobox :items="selection" v-model="line" @update:model-value="on_select" />
+                    -->
                     <div class="text-caption mb-1">文字サイズ: {{ size.toFixed(0) }}</div>
                     <v-slider v-model="size" :min="10" :max="100" step="1" thumb-label color="primary"
                         @update:modelValue="on_click" />
@@ -38,16 +40,16 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { type Point, katakana, katakanaIdx, svgpath } from '@/lib/const';
+import { type Point, katakana, katakanaIdx, katakanaOnly, svgpath } from '@/lib/const';
 
 const selection: string[] = [
     'ヒフミヨイマワリテメクルムナヤコトアウノスヘシレカタチサキ',
     'ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
     'マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
 ];
-const line = ref(selection[0]);
+const selectedLine = ref(selection[0]);
 const size = ref(60);
-const imgs = ref<{src:string, alt:string, title:string}[]>([]);
+const imgs = ref<{ src: string, alt: string, title: string }[]>([]);
 
 onMounted(() => {
     getImgs();
@@ -62,9 +64,10 @@ const on_select = () => {
 }
 
 const getImgs = () => {
-    imgs.value = [...line.value].map(c => {
+    const line: string = katakanaOnly(selectedLine.value);
+    imgs.value = [...line].map(c => {
         const src = "assets/katakamuna-k" + (katakanaIdx.get(c) ?? "00") + ".svg";
-        return { src:src, alt:c, title:c };
+        return { src: src, alt: c, title: c };
     });
 }
 </script>

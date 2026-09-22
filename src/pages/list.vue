@@ -21,7 +21,7 @@
             <v-col cols="12" md="4">
                 <v-card class="pa-4" elevation="2">
                     <v-card-title class="text-h6 font-weight-bold px-0">
-                        🎨 パラメーター
+                        🎨 設定
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
                     <div class="text-caption mb-1">画像サイズ(W): {{ svgw }}</div>

@@ -74,3 +74,39 @@ export const katakanaIdx = new Map<string, string>([
     ['ン', '50'],
 ]);
 export const katakana = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン";
+
+// 濁点・半濁点付きのカタカナを清音に変換するマップ
+const dakuonMap = {
+    'ガ': 'カ', 'ギ': 'キ', 'グ': 'ク', 'ゲ': 'ケ', 'ゴ': 'コ',
+    'ザ': 'サ', 'ジ': 'シ', 'ズ': 'ス', 'ゼ': 'セ', 'ゾ': 'ソ',
+    'ダ': 'タ', 'ヂ': 'チ', 'ヅ': 'ツ', 'デ': 'テ', 'ド': 'ト',
+    'バ': 'ハ', 'ビ': 'ヒ', 'ブ': 'フ', 'ベ': 'ヘ', 'ボ': 'ホ',
+    'パ': 'ハ', 'ピ': 'ヒ', 'プ': 'フ', 'ペ': 'ヘ', 'ポ': 'ホ',
+    'ヴ': 'ウ', 'ヷ': 'ワ', 'ヺ': 'ヲ'
+};
+
+// 小文字のカタカナを大文字に変換するマップ
+const komojiMap = {
+    'ァ': 'ア', 'ィ': 'イ', 'ゥ': 'ウ', 'ェ': 'エ', 'ォ': 'オ',
+    'ッ': 'ツ',
+    'ャ': 'ヤ', 'ュ': 'ユ', 'ョ': 'ヨ',
+    'ヮ': 'ワ', 'ヶ': 'ケ', 'ヵ': 'カ'
+};
+
+export const katakanaOnly = (src: string): string => {
+    // まず「ウ」＋「濁点」のような結合文字を「ヴ」などの1文字に統合（正規化）
+    let text: string = src.normalize('NFC');
+    // 濁点・半濁点付きの文字を清音に1文字ずつ置換
+    for (const [key, value] of Object.entries(dakuonMap)) {
+        text = text.replaceAll(key, value);
+    }
+    // 次に小文字を大文字化（例: ァ → ア、ッ → ツ）
+    for (const [key, value] of Object.entries(komojiMap)) {
+        text = text.replaceAll(key, value);
+    }
+    // 後付けの濁点・半濁点記号単体（ﾞ ﾟ ﾞ ﾟ）や、カタカナ以外の文字を最終的に除去
+    text = text
+        .replace(/[\u3099\u309A\uFF9E\uFF9F]/g, '')
+        .replace(/[^アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォッャュョヮヶー]/g, '');
+    return text;
+}
