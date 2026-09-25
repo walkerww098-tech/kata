@@ -73,7 +73,8 @@ export const katakanaIdx = new Map<string, string>([
     ['ヱ', '49'],
     ['ン', '50'],
 ]);
-export const katakana = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン";
+//export const katakana = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン";
+export const katakana = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワ　ヲ　ン";
 
 // 濁点・半濁点付きのカタカナを清音に変換するマップ
 const dakuonMap = {
@@ -107,6 +108,6 @@ export const katakanaOnly = (src: string): string => {
     // 後付けの濁点・半濁点記号単体（ﾞ ﾟ ﾞ ﾟ）や、カタカナ以外の文字を最終的に除去
     text = text
         .replace(/[\u3099\u309A\uFF9E\uFF9F]/g, '')
-        .replace(/[^アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンァィゥェォッャュョヮヶー]/g, '');
+        .replace(/[^アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン　]/g, '');
     return text;
 }

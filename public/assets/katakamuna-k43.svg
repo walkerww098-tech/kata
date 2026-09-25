@@ -1,9 +1,11 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-<line x1="96.860" y1="159.918" x2="96.860" y2="40.082" stroke="black" stroke-width="4" fill="none" />
-    <line x1="103.140" y1="159.918" x2="103.140" y2="40.082" stroke="black" stroke-width="4" fill="none" />
-    <path d="M 96.860,159.918 A 60,60 0 0,1 96.860,40.082" stroke="black" stroke-width="4" fill="none" />
-    <path d="M 103.140,40.082 A 60,60 0 0,1 103.140,159.918" stroke="black" stroke-width="4" fill="none" />
-    <circle cx="160" cy="100" r="10" stroke="black" stroke-width="4" fill="none" />
-    <circle cx="40" cy="100" r="10" stroke="black" stroke-width="4" fill="none" />
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<line x1="48.43" y1="79.959" x2="48.43" y2="20.041" stroke="black" stroke-width="4" fill="none" />
+    <line x1="51.57" y1="79.959" x2="51.57" y2="20.041" stroke="black" stroke-width="4" fill="none" />
+    <path d="M 48.43,79.959 A 30.0,30.0 0 0,1 48.43,20.041" stroke="black" stroke-width="4"
+      fill="none" />
+    <path d="M 51.57,20.041 A 30.0,30.0 0 0,1 51.57,79.959" stroke="black" stroke-width="4"
+      fill="none" />
+    <circle cx="80.0" cy="50.0" r="5.0" stroke="black" stroke-width="4" fill="none" />
+    <circle cx="20.0" cy="50.0" r="5.0" stroke="black" stroke-width="4" fill="none" />
 
 </svg>

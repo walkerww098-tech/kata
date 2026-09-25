@@ -158,9 +158,10 @@ const getpoints = () => {
         radiusp += (radiusp_step.value + radiuspp);
         radius += radiusp;
         if (i < 1) {
-            radius += (radiusp + 10);
-        } else if (i < 2) {
+            //radius += (radiusp + 10);
             radius += (radiusp + 5);
+        } else if (i < 2) {
+            radius += (radiusp + 2);
         } else if (i < 3) {
             //radius += (radiusp + 2);
         }
