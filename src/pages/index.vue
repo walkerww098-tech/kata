@@ -24,7 +24,6 @@
                     </div>
                 </v-card>
             </v-col>
-
             <v-col cols="12" md="4">
                 <v-card class="pa-4" elevation="2">
                     <v-card-title class="text-h6 font-weight-bold px-0">
@@ -79,8 +78,15 @@
 import { computed, onMounted, ref } from "vue";
 import { type Point, katakana, katakanaIdx, katakanaOnly, svgpath } from '@/lib/const';
 import { useApplicationStore } from '@/stores/applicationStore';
+import { utahi80 } from '@/lib/const';
+import { useRoute, useRouter } from 'vue-router'
 
 const app = useApplicationStore();
+const route = useRoute()
+const router = useRouter()
+
+const id = route.params.id ? Number(route.params.id) : 0
+const utahi = ref(utahi80[id - 1] || null);
 
 const selection: string[] = [
     //    'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤヰユヱヨラリルレロワヰヲヱン',
@@ -88,7 +94,7 @@ const selection: string[] = [
     'ソラニモロケセユヱヌオヲハエツヰネホンカタカムナ',
     'マカタマノアマノミナカヌシタカミムスヒカムミムスヒミスマルノタマ'
 ];
-const selectedLine = ref(selection[0]);
+const selectedLine = ref(utahi.value || selection[0]);
 
 const centerSymbols: any[] = [
     { key: '1', value: 'c01', label: 'ヤタノカカミ', src: './assets/katakamuna.svg#c01' },
@@ -96,7 +102,6 @@ const centerSymbols: any[] = [
     { key: '3', value: 'c03', label: 'ミクマリ', src: './assets/katakamuna.svg#c03' }
 ];
 const centerSymbol = ref(centerSymbols[0]);
-
 const svgsize = ref(500);
 const viewBox = computed(() => {
     return "-" + svgsize.value / 2 + " -" + svgsize.value / 2 +
@@ -116,8 +121,12 @@ onMounted(() => {
     points.value = getpoints();
 });
 
+const on_click = () => {
+    points.value = getpoints();
+}
+
 const on_select = () => {
-    const line: string = selectedLine.value;
+    const line: string = selectedLine.value || '';
     const idx = selection.findIndex(x => x === line);
     // 中心図形
     // ３番目(idx 2)はミクマリ、その他はとりあえずヤタノカカミとしておく。
@@ -128,12 +137,9 @@ const on_select = () => {
     points.value = getpoints();
 }
 
-const on_click = () => {
-    points.value = getpoints();
-}
-
 const getpoints = () => {
     let list: Point[] = [];
+
     const div = devide_n.value;
     const angle_step = 360 / div;
     const text_offset = 20;
@@ -141,7 +147,7 @@ const getpoints = () => {
     let radiusp = 0;
     let radiuspp = 0;
 
-    const line: string = katakanaOnly(selectedLine.value);
+    const line: string = katakanaOnly(selectedLine.value || '');
     for (let i = 0; i < line.length; i++) {
         const degree = (i % div) * angle_step - 90;
         const angle = degree * (Math.PI / 180);

@@ -9,6 +9,7 @@
                 <v-tab to="/horizontal">横書き</v-tab>
                 <v-tab to="/virtical">縦書き</v-tab>
                 <v-tab to="/list">文字一覧</v-tab>
+                <v-tab to="/kata80">80首</v-tab>
             </v-tabs>
             <v-spacer></v-spacer>
         </v-system-bar>
